@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To do list — Daily Ops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="grain"></div>
+
+  <div class="app" id="app">
+
+    <!-- ============ HEADER / GAUGE ============ -->
+    <header class="deck">
+      <div class="deck-left">
+        <p class="eyebrow">Log №<span id="logNumber">001</span> — <span id="todayLabel"></span></p>
+        <h1 class="wordmark">Task <em>Ledger</em></h1>
+        <p class="sub">Every entry logged, timestamped, and closed out.</p>
+      </div>
+
+      <div class="deck-right">
+        <div class="gauge" role="img" aria-label="Completion progress">
+          <svg viewBox="0 0 120 120" class="gauge-ring">
+            <circle class="gauge-track" cx="60" cy="60" r="52"></circle>
+            <circle class="gauge-fill" id="gaugeFill" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div class="gauge-readout">
+            <span class="gauge-pct" id="gaugePct">0%</span>
+            <span class="gauge-caption">cleared</span>
+          </div>
+        </div>
+        <button id="themeToggle" class="theme-toggle" type="button" aria-label="Toggle light and dark mode">
+          <span class="theme-dot"></span>
+          <span id="themeLabel">Night watch</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ============ STAT STRIP ============ -->
+    <section class="stat-strip" aria-label="Task statistics">
+      <div class="stat">
+        <span class="stat-num" id="statTotal">0</span>
+        <span class="stat-label">Logged</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num" id="statActive">0</span>
+        <span class="stat-label">Open</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num" id="statDone">0</span>
+        <span class="stat-label">Closed</span>
+      </div>
+      <div class="stat stat-warn">
+        <span class="stat-num" id="statOverdue">0</span>
+        <span class="stat-label">Overdue</span>
+      </div>
+    </section>
+
+    <!-- ============ ENTRY FORM ============ -->
+    <section class="entry-bay" aria-label="Add a new task">
+      <form id="taskForm" class="entry-form">
+        <input
+          type="text"
+          id="taskTitle"
+          class="entry-title"
+          placeholder="Log a new task…"
+          autocomplete="off"
+          required
+        />
+
+        <div class="entry-meta">
+          <label class="field">
+            <span class="field-label">Due</span>
+            <input type="date" id="taskDue" class="field-input">
+          </label>
+
+          <label class="field">
+            <span class="field-label">Priority</span>
+            <select id="taskPriority" class="field-input">
+              <option value="low">Low</option>
+              <option value="medium" selected>Medium</option>
+              <option value="high">High</option>
+            </select>
+          </label>
+
+          <label class="field">
+            <span class="field-label">Category</span>
+            <input
+              type="text"
+              id="taskCategory"
+              class="field-input"
+              placeholder="e.g. College"
+              list="categoryOptions"
+              autocomplete="off"
+            >
+            <datalist id="categoryOptions"></datalist>
+          </label>
+
+          <button type="submit" class="btn-log">Log it</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- ============ CONTROLS ============ -->
+    <section class="controls" aria-label="Filter and sort tasks">
+      <div class="filter-tabs" id="filterTabs" role="tablist">
+        <button class="tab active" data-filter="all" type="button">All</button>
+        <button class="tab" data-filter="active" type="button">Open</button>
+        <button class="tab" data-filter="done" type="button">Closed</button>
+      </div>
+
+      <div class="controls-right">
+        <select id="categoryFilter" class="control-select" aria-label="Filter by category">
+          <option value="all">All categories</option>
+        </select>
+
+        <select id="sortSelect" class="control-select" aria-label="Sort tasks">
+          <option value="created">Newest first</option>
+          <option value="due">By due date</option>
+          <option value="priority">By priority</option>
+          <option value="alpha">A → Z</option>
+        </select>
+
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+          <input type="text" id="searchInput" class="search-input" placeholder="Search entries…">
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TASK LIST ============ -->
+    <section class="ledger" aria-label="Task list">
+      <ul class="task-list" id="taskList"></ul>
+
+      <div class="empty-state" id="emptyState">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="empty-icon">
+          <path d="M9 12.5l2 2 4-4.5"></path>
+          <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+          <path d="M8 2v4M16 2v4M3 9h18"></path>
+        </svg>
+        <p class="empty-title" id="emptyTitle">The log is clean.</p>
+        <p class="empty-sub" id="emptySub">Add your first task above to open today's entry.</p>
+      </div>
+    </section>
+
+    <footer class="deck-footer">
+      <p>Stored locally in this browser · nothing leaves this device</p>
+    </footer>
+
+  </div>
+
+  <!-- Task item template -->
+  <template id="taskTemplate">
+    <li class="task-item" data-priority="">
+      <button class="task-check" type="button" aria-label="Mark task complete">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M5 13l4 4L19 7"></path>
+        </svg>
+      </button>
+
+      <div class="task-body">
+        <p class="task-title"></p>
+        <div class="task-meta">
+          <span class="task-priority-flag"></span>
+          <span class="task-category"></span>
+          <span class="task-due"></span>
+        </div>
+      </div>
+
+      <button class="task-delete" type="button" aria-label="Delete task">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6"></path>
+        </svg>
+      </button>
+    </li>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>
